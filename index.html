@@ -134,7 +134,13 @@
 
             const _logInternals = function() {
                 Log.i(`POCInterface: ${(typeof POCInterface === 'undefined' ? 'n/a' : POCInterface)}`);
+                if(typeof POCInterface === 'object') {
+                    Log.i(Object.entries(POCInterface));
+                }
                 Log.i(`Handle: ${Handle}`);
+                if(typeof Handle === 'object') {
+                    Log.i(Object.entries(Handle));
+                }
             }
 
             return {
