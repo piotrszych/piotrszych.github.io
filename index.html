@@ -26,13 +26,23 @@
                     </a>
                 </div>
             </div>
-            <div class="row">
+            <div class="row mt-3">
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <button id="link_button" class="btn btn-primary">Go to link</button>
+                        </div>
+                        <input id="link_input" type="text" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
                 <div class="col">
                     <h4>Log below</h4>
                 </div>
             </div>
             <div class="row">
-                <div id="log_list" class="col">
+                <div id="log_list" class="col border rounded bg-light pt-2">
                     
                 </div>
             </div>
@@ -110,6 +120,19 @@
                 });
             }
 
+            const _attachLinkButtonListener = function() {
+                _runLoggedGuarded("attachLinkButtonListener", function() {
+                    var buttonNode = document.getElementById("link_button");
+                    buttonNode.addEventListener('click', function() {
+                        _runLoggedGuarded("onLinkButtonClick", function() {
+                            var inputNode = document.getElementById("link_input");
+                            var value = inputNode.value;
+                            Handle.openDeeplink(value);
+                        });
+                    })
+                });
+            }
+
             const _onGameInitialized = function() {
                 _runLoggedGuarded("onGameInitialized", function() {
                     Handle.onGameInitialized();
@@ -148,6 +171,7 @@
                     Log.attach(document.getElementById('log_list'));
                     _logInternals();
                     _attachExitListener();
+                    _attachLinkButtonListener();
                     _onGameInitialized();
                 },
                 logAfterAWhile: function() {
