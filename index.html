@@ -132,17 +132,27 @@
                 });
             }
 
+            const _logInternals = function() {
+                Log.i(`POCInterface: ${(typeof POCInterface === 'undefined' ? 'n/a' : POCInterface)}`);
+                Log.i(`Handle: ${Handle}`);
+            }
+
             return {
                 init: function() {
                     Log.attach(document.getElementById('log_list'));
+                    _logInternals();
                     _attachExitListener();
                     _onGameInitialized();
+                },
+                logAfterAWhile: function() {
+                    setTimeout(() => _logInternals(), 3000);
                 }
             }
         })();
 
         document.addEventListener('DOMContentLoaded', function() {
             TheApp.init();
+            TheApp.logAfterAWhile();
         }, false);
     </script>
 </html>
