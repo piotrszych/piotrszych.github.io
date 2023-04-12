@@ -95,6 +95,10 @@
                     return context[func].apply(context, args);
                 } catch(e) {
                     console.log("Got bug :<");
+                    console.log("Context");
+                    console.log(context);
+                    console.log("func");
+                    console.log(func);
                     console.warn(e);
                 }
             }
