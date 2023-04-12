@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <title>CFGS PoC JS - Mutliplatform</title>
+        
+        <link rel="stylesheet" href="../bootstrap.min.css">
+        
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h1>Hello, multiplatform!</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <a id="exit_button" type="button" class="btn btn-danger" href="#" disabled>
+                        Exit
+                    </a>
+                    <button id="status_button" type="button" class="btn btn-secondary">
+                        Log status
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <button id="link_button" class="btn btn-primary">Go to link</button>
+                        </div>
+                        <input id="link_input" type="text" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <p>Platform: <span id="platform_holder"></span></p>
+                    <p>Status: <span id="status_holder"></span></p>
+                </div>
+            </div>
+            <div class="row">
+                <div id="log_list" class="col border rounded bg-light pt-2">
+                    
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script type="text/javascript">
+        const TheMpApp = (function(){
+            let handleName = null;
+            let androidHandleName = 'POCInterface';
+
+            const _init = function() {
+                if(typeof window.webkit !== 'undefined' && typeof window.webkit.messageHandler !== 'undefined') {
+                    handleName = 'iOS';
+                } else if(typeof window[androidHandleName] !== 'undefined') {
+                    handleName = 'Android';
+                } else {
+                    console.error("No platform detected.");
+                }
+                _showPlatform();
+            }
+
+            const _setNodeText = function(id, text) {
+                document.getElementById(id).innerText = text;
+            }
+
+            const _showPlatform = function() {
+                _setNodeText("platform_holder", handleName);
+            }
+
+            const _callFunction = function(funcName, args) {
+                if(handleName === 'iOS') {
+                    _executeFunctionByName(`window.webkit.messageHandler.${funcName}.postMessage`, window, args);
+                } else if(handleName === 'Android') {
+                    _executeFunctionByName(`${androidHandleName}.${funcName}`, window, args);
+                }
+            }
+
+            const _executeFunctionByName = function(functionName, context, args) {
+                var args = Array.prototype.slice.call(arguments, 2);
+                var namespaces = functionName.split(".");
+                var func = namespaces.pop();
+                for(var i = 0; i < namespaces.length; i++) {
+                    context = context[namespaces[i]];
+                }
+                return context[func].apply(context, args);
+            }
+
+            return {
+                init: _init,
+            }
+        })();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            TheMpApp.init();
+        }, false);
+    </script>
+</html>
