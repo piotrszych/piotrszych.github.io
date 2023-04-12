@@ -52,10 +52,10 @@
 
     <script type="text/javascript">
         const TheMpApp = (function(){
-            let handleName = null;
+            let handleName = "no platform";
             let androidHandleName = 'POCInterface';
 
-            const _init = function() {
+            const _initHandle = function() {
                 if(typeof window.webkit !== 'undefined' && typeof window.webkit.messageHandler !== 'undefined') {
                     handleName = 'iOS';
                 } else if(typeof window[androidHandleName] !== 'undefined') {
@@ -79,6 +79,8 @@
                     _executeFunctionByName(`window.webkit.messageHandler.${funcName}.postMessage`, window, args);
                 } else if(handleName === 'Android') {
                     _executeFunctionByName(`${androidHandleName}.${funcName}`, window, args);
+                } else {
+                    console.warn(`Handle not detected (tried to call "${funcName} with args ${args}")`);
                 }
             }
 
@@ -92,8 +94,15 @@
                 return context[func].apply(context, args);
             }
 
+            const _onGameInitialized = function() {
+                _callFunction("onGameInitialized");
+            }
+
             return {
-                init: _init,
+                init: function() {
+                    _initHandle();
+                    _onGameInitialized();
+                },
             }
         })();
 
