@@ -61,7 +61,7 @@
                 } else if(typeof window[androidHandleName] !== 'undefined') {
                     handleName = 'Android';
                 } else {
-                    console.error("No platform detected.");
+                    console.warn("No platform detected.");
                 }
                 _showPlatform();
             }
