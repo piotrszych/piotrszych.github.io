@@ -54,7 +54,7 @@
         const TheApp = (function(){
             let handleName = "no platform";
             let androidHandleName = 'POCInterface';
-            let status = "no status";
+            let userState = "no user state";
 
             const _initHandle = function() {
                 if(typeof window.webkit !== 'undefined' && typeof window.webkit.messageHandler !== 'undefined') {
@@ -75,7 +75,7 @@
                 _setNodeText("platform_holder", handleName);
             }
 
-            const _showStatus = function() {
+            const _showUserState = function() {
                 _setNodeText("status_holder", status);
             }
 
@@ -102,18 +102,18 @@
                 _callFunction("onGameInitialized");
             }
 
-            const _setStatus = function(newStatus) {
-                status = newStatus;
-                _showStatus();
+            const _setUserState = function(newState) {
+                userState = newStatus;
+                _showUserState();
             }
 
             return {
                 init: function() {
-                    _showStatus();
+                    _showUserState();
                     _initHandle();
                     _onGameInitialized();
                 },
-                setStatus: _setStatus
+                setUserState: _setUserState
             }
         })();
 
