@@ -21,9 +21,6 @@
                     <a id="exit_button" type="button" class="btn btn-danger" href="#" disabled>
                         Exit
                     </a>
-                    <button id="status_button" type="button" class="btn btn-secondary">
-                        Log status
-                    </button>
                 </div>
             </div>
             <div class="row mt-3">
@@ -56,6 +53,18 @@
             let androidHandleName = 'POCInterface';
             let userState = "no user state";
 
+            const _setNodeText = function(id, text) {
+                document.getElementById(id).innerText = text;
+            }
+
+            const _showPlatform = function() {
+                _setNodeText("platform_holder", handleName);
+            }
+
+            const _showUserState = function() {
+                _setNodeText("status_holder", userState);
+            }
+
             const _initHandle = function() {
                 if(typeof window.webkit !== 'undefined' && typeof window.webkit.messageHandler !== 'undefined') {
                     handleName = 'iOS';
@@ -67,16 +76,19 @@
                 _showPlatform();
             }
 
-            const _setNodeText = function(id, text) {
-                document.getElementById(id).innerText = text;
+            const _initExitButtonListener = function() {
+                document.getElementById('exit_button').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    _onExit();
+                });
             }
 
-            const _showPlatform = function() {
-                _setNodeText("platform_holder", handleName);
-            }
-
-            const _showUserState = function() {
-                _setNodeText("status_holder", userState);
+            const _initDeeplinkButtonListener = function() {
+                let input = document.getElementById('link_input');
+                document.getElementById('link_button').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    _onOpenDeeplink(input.value);
+                })
             }
 
             const _callFunction = function(funcName, args) {
@@ -107,10 +119,20 @@
                 _showUserState();
             }
 
+            const _onExit = function() {
+                _callFunction("exit");
+            }
+
+            const _onOpenDeeplink = function(deeplink) {
+                _callFunction("openDeeplink", deeplink);
+            }
+
             return {
                 init: function() {
                     _showUserState();
                     _initHandle();
+                    _initExitButtonListener();
+                    _initDeeplinkButtonListener();
                     _onGameInitialized();
                 },
                 setUserState: _setUserState
