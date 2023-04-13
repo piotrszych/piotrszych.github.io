@@ -94,7 +94,11 @@
             const _callFunction = function(funcName, args) {
                 let safeArgs = [];
                 if(args == null) {
-                    safeArgs = [];
+                    if(handleName === 'iOS') {
+                        safeArgs = ["nil"];
+                    } else {
+                        safeArgs = [];
+                    }
                 } else if(!Array.isArray(args)) {
                     safeArgs = [args];
                 } else {
