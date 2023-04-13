@@ -54,6 +54,7 @@
         const TheMpApp = (function(){
             let handleName = "no platform";
             let androidHandleName = 'POCInterface';
+            let status = "no status";
 
             const _initHandle = function() {
                 if(typeof window.webkit !== 'undefined' && typeof window.webkit.messageHandler !== 'undefined') {
@@ -74,38 +75,26 @@
                 _setNodeText("platform_holder", handleName);
             }
 
+            const _showStatus = function() {
+                _setNodeText("status_holder", status);
+            }
+
             const _callFunction = function(funcName, args) {
+                let safeArgs = [];
                 if(args == null) {
-                    args = [];
+                    safeArgs = [];
                 } else if(!Array.isArray(args)) {
-                    args = [args];
+                    safeArgs = [args];
+                } else {
+                    safeArgs = args;
                 }
 
                 if(handleName === 'iOS') {
-                    window.webkit.messageHandler[funcName]["postMessage"](...args);
+                    window.webkit.messageHandler[funcName]["postMessage"](...safeArgs);
                 } else if(handleName === 'Android') {
-                    window[androidHandleName][funcName](...args);
+                    window[androidHandleName][funcName](...safeArgs);
                 } else {
-                    console.warn(`Handle not detected (tried to call "${funcName} with args ${args}")`);
-                }
-            }
-
-            const _executeFunctionByName = function(functionName, context, args) {
-                try {
-                    var args = Array.prototype.slice.call(arguments, 2);
-                    var namespaces = functionName.split(".");
-                    var func = namespaces.pop();
-                    for(var i = 0; i < namespaces.length; i++) {
-                        context = context[namespaces[i]];
-                    }
-                    return context[func].apply(context, args);
-                } catch(e) {
-                    console.log("Got bug :<");
-                    console.log("Context");
-                    console.log(context);
-                    console.log("func");
-                    console.log(func);
-                    console.warn(e);
+                    console.warn(`Handle not detected (tried to call "${funcName}" with args ${args} parsed as ${safeArgs})`);
                 }
             }
 
@@ -113,23 +102,23 @@
                 _callFunction("onGameInitialized");
             }
 
+            const _setStatus = function(newStatus) {
+                status = newStatus;
+                _showStatus();
+            }
+
             return {
                 init: function() {
+                    _showStatus();
                     _initHandle();
                     _onGameInitialized();
                 },
-                onGameInitializedManual: _onGameInitialized,
+                setStatus: _setStatus
             }
         })();
 
         document.addEventListener('DOMContentLoaded', function() {
             TheMpApp.init();
-
-            setTimeout(function() {
-                console.log("POC Below");
-                console.log(window.POCInterface);
-                console.log("POC Above");
-            }, 5000);
         }, false);
     </script>
 </html>
