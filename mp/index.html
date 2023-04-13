@@ -66,7 +66,7 @@
             }
 
             const _initHandle = function() {
-                if(typeof window.webkit !== 'undefined' && typeof window.webkit.messageHandler !== 'undefined') {
+                if(typeof window.webkit !== 'undefined' && typeof window.webkit.messageHandlers !== 'undefined') {
                     handleName = 'iOS';
                 } else if(typeof window[androidHandleName] !== 'undefined') {
                     handleName = 'Android';
@@ -102,7 +102,7 @@
                 }
 
                 if(handleName === 'iOS') {
-                    window.webkit.messageHandler[funcName]["postMessage"](...safeArgs);
+                    window.webkit.messageHandlers[funcName]["postMessage"](...safeArgs);
                 } else if(handleName === 'Android') {
                     window[androidHandleName][funcName](...safeArgs);
                 } else {
