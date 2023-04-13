@@ -76,9 +76,9 @@
 
             const _callFunction = function(funcName, args) {
                 if(handleName === 'iOS') {
-                    _executeFunctionByName(`window.webkit.messageHandler.${funcName}.postMessage`, window, args);
+                    window.webkit.messageHandler[funcName]["postMessage"](...args);
                 } else if(handleName === 'Android') {
-                    _executeFunctionByName(`${androidHandleName}.${funcName}`, window, args);
+                    window[androidHandleName][funcName](...args);
                 } else {
                     console.warn(`Handle not detected (tried to call "${funcName} with args ${args}")`);
                 }
