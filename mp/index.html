@@ -75,6 +75,12 @@
             }
 
             const _callFunction = function(funcName, args) {
+                if(args == null) {
+                    args = [];
+                } else if(!Array.isArray(args)) {
+                    args = [args];
+                }
+
                 if(handleName === 'iOS') {
                     window.webkit.messageHandler[funcName]["postMessage"](...args);
                 } else if(handleName === 'Android') {
