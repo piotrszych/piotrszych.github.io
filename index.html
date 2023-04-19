@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <title>CFGS PoC JS</title>
+        <title>CFGS PoC JS - Mutliplatform</title>
         
         <link rel="stylesheet" href="bootstrap.min.css">
         
@@ -13,7 +13,7 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <h1>Hello, app</h1>
+                    <h1>Hello, multiplatform!</h1>
                 </div>
             </div>
             <div class="row">
@@ -21,9 +21,6 @@
                     <a id="exit_button" type="button" class="btn btn-danger" href="#" disabled>
                         Exit
                     </a>
-                    <button id="status_button" type="button" class="btn btn-secondary">
-                        Log status
-                    </button>
                 </div>
             </div>
             <div class="row mt-3">
@@ -38,7 +35,8 @@
             </div>
             <div class="row mt-3">
                 <div class="col">
-                    <h4>Log below <span class="badge">Status: <span id="status_holder"></span></h4>
+                    <p>Platform: <span id="platform_holder"></span></p>
+                    <p>Status: <span id="status_holder"></span></p>
                 </div>
             </div>
             <div class="row">
@@ -50,165 +48,103 @@
     </body>
 
     <script type="text/javascript">
-        const Log = (function() {
-            var _didReportNotAttached = false;
-            var _logContainer = null;
+        const TheApp = (function(){
+            let handleName = "no platform";
+            let androidHandleName = 'POCInterface';
+            let userState = "no user state";
 
-            const _isAttached = function() {
-                return _logContainer != null;
+            const _setNodeText = function(id, text) {
+                document.getElementById(id).innerText = text;
             }
 
-            const _onNotAttachedDetected = function() {
-                if(!_didReportNotAttached) {
-                    console.error("Log failed; the logger is not attached.");
-                    _didReportNotAttached = true;
+            const _showPlatform = function() {
+                _setNodeText("platform_holder", handleName);
+            }
+
+            const _showUserState = function() {
+                _setNodeText("status_holder", userState);
+            }
+
+            const _initHandle = function() {
+                if(typeof window.webkit !== 'undefined' && typeof window.webkit.messageHandlers !== 'undefined') {
+                    handleName = 'iOS';
+                } else if(typeof window[androidHandleName] !== 'undefined') {
+                    handleName = 'Android';
+                } else {
+                    console.warn("No platform detected.");
                 }
+                _showPlatform();
             }
 
-            const _printHtmlLog = function(msg, clazz) {
-                if(!_isAttached()) {
-                    _onNotAttachedDetected();
-                    return;
+            const _initExitButtonListener = function() {
+                document.getElementById('exit_button').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    _onExit();
+                });
+            }
+
+            const _initDeeplinkButtonListener = function() {
+                let input = document.getElementById('link_input');
+                document.getElementById('link_button').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    _onOpenDeeplink(input.value);
+                })
+            }
+
+            const _callFunction = function(funcName, args) {
+                let safeArgs = [];
+                if(args == null) {
+                    if(handleName === 'iOS') {
+                        safeArgs = ["nil"];
+                    } else {
+                        safeArgs = [];
+                    }
+                } else if(!Array.isArray(args)) {
+                    safeArgs = [args];
+                } else {
+                    safeArgs = args;
                 }
-                _logContainer.innerHTML = _logContainer.innerHTML + `<p class="${clazz}">${msg}</p>`
-            }
 
-            const _printD = function(msg) {
-                console.log(msg);
-                _printHtmlLog(msg, '');
-            }
-
-            const _printW = function(msg) {
-                console.warn(msg);
-                _printHtmlLog(msg, 'text-warning');
-            }
-
-            const _printE = function(msg) {
-                console.error(msg);
-                _printHtmlLog(msg, 'text-danger');
-            }
-
-            const _printI = function(msg) {
-                console.info(msg);
-                _printHtmlLog(msg, 'text-info');
-            }
-
-            return {
-                attach: function(target) {
-                    _logContainer = target;
-                },
-                d: _printD,
-                w: _printW,
-                e: _printE,
-                i: _printI
-            }
-        })();
-
-        var TheApp = (function() {
-            var Handle = (typeof POCInterface == 'undefined') ? undefined : POCInterface;
-            var _status = null;
-
-            const _attachExitListener = function() {
-                _runLoggedGuarded("attachExitListener", function() {
-                    var domTarget = document.getElementById("exit_button");
-                    domTarget.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        Log.i("Exit button click called!");
-                        _onExit();
-                        
-                    });
-                    domTarget.disabled = false;
-                });
-            }
-
-            const _attachLinkButtonListener = function() {
-                _runLoggedGuarded("attachLinkButtonListener", function() {
-                    var buttonNode = document.getElementById("link_button");
-                    buttonNode.addEventListener('click', function() {
-                        _runLoggedGuarded("onLinkButtonClick", function() {
-                            var inputNode = document.getElementById("link_input");
-                            var value = inputNode.value;
-                            Handle.openDeeplink(value);
-                        });
-                    })
-                });
-            }
-
-            const _attachStatusButtonListener = function() {
-                _runLoggedGuarded("attachStatusButtonListener", function() {
-                    var buttonNode = document.getElementById("status_button");
-                    buttonNode.addEventListener('click', function() {
-                        _runLoggedGuarded("onStatusButtonClick", function() {
-                            Log.i(`Current status is: ${_status}`);
-                            _updateStatusUi();
-                        });
-                    });
-                });
-            }
-
-            const _updateStatusUi = function() {
-                _runLoggedGuarded("updateStatusUi", function() {
-                    var node = document.getElementById("status_holder");
-                    node.innerText = `${_status}`;
-                });
+                if(handleName === 'iOS') {
+                    window.webkit.messageHandlers[funcName]["postMessage"](...safeArgs);
+                } else if(handleName === 'Android') {
+                    window[androidHandleName][funcName](...safeArgs);
+                } else {
+                    console.warn(`Handle not detected (tried to call "${funcName}" with args ${args} parsed as ${safeArgs})`);
+                }
             }
 
             const _onGameInitialized = function() {
-                _runLoggedGuarded("onGameInitialized", function() {
-                    Handle.onGameInitialized();
-                });
+                _callFunction("onGameInitialized");
             }
 
-            const _runLoggedGuarded = function(tag, fun) {
-                try {
-                    Log.i(`${tag} called`);
-                    fun();
-                    Log.i(`${tag} finished`);
-                } catch(e) {
-                    Log.e(e);
-                }
+            const _setUserState = function(newState) {
+                userState = newState;
+                _showUserState();
             }
 
             const _onExit = function() {
-                _runLoggedGuarded("onExit", function() {
-                    Handle.exit();
-                });
+                _callFunction("exit");
             }
 
-            const _logInternals = function() {
-                Log.i(`POCInterface: ${(typeof POCInterface === 'undefined' ? 'n/a' : POCInterface)}`);
-                if(typeof POCInterface === 'object') {
-                    Log.i(Object.entries(POCInterface));
-                }
-                Log.i(`Handle: ${Handle}`);
-                if(typeof Handle === 'object') {
-                    Log.i(Object.entries(Handle));
-                }
+            const _onOpenDeeplink = function(deeplink) {
+                _callFunction("openDeeplink", deeplink);
             }
 
             return {
                 init: function() {
-                    Log.attach(document.getElementById('log_list'));
-                    _logInternals();
-                    _attachExitListener();
-                    _attachLinkButtonListener();
-                    _attachStatusButtonListener();
+                    _showUserState();
+                    _initHandle();
+                    _initExitButtonListener();
+                    _initDeeplinkButtonListener();
                     _onGameInitialized();
-                    _updateStatusUi();
                 },
-                logAfterAWhile: function() {
-                    setTimeout(() => _logInternals(), 3000);
-                },
-                setUserState: function(status) { 
-                    _status = status;
-                    _updateStatusUi(_status);
-                }
+                setUserState: _setUserState
             }
         })();
 
         document.addEventListener('DOMContentLoaded', function() {
             TheApp.init();
-            TheApp.logAfterAWhile();
         }, false);
     </script>
 </html>
