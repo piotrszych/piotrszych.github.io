@@ -97,7 +97,7 @@
                     if(handleName === 'iOS') {
                         safeArgs = ["nil"];
                     } else {
-                        safeArgs = [null];
+                        safeArgs = [];
                     }
                 } else if(!Array.isArray(args)) {
                     safeArgs = [args];
@@ -108,7 +108,17 @@
                 if(handleName === 'iOS') {
                     window.webkit.messageHandlers[funcName]["postMessage"](...safeArgs);
                 } else if(handleName === 'Android') {
-                    window[androidHandleName][funcName](...safeArgs);
+                    try {
+                        window[androidHandleName][funcName](...safeArgs);
+                    } catch(e) {
+                        console.warn(e);
+                        if(!safeArgs.length) {
+                            // Android does not like calling functions with invalid signature, eg. when parameter
+                            // is expected but you don't pass `null` explicitly. On the other hand, we need to
+                            // handle empty parameters as well.
+                            window[androidHandleName][funcName](null);
+                        }
+                    }
                 } else {
                     console.warn(`Handle not detected (tried to call "${funcName}" with args ${args} parsed as ${safeArgs})`);
                 }
