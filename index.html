@@ -13,7 +13,7 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <h1>Hello, multiplatform!</h1>
+                    <h1>Hello, multiplatform! V1</h1>
                 </div>
             </div>
             <div class="row">
@@ -30,6 +30,38 @@
                             <button id="link_button" class="btn btn-primary">Go to link</button>
                         </div>
                         <input id="link_input" type="text" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <button id="encrypt_button" class="btn btn-primary">Encrypt</button>
+                        </div>
+                        <input id="encrypt_contentId_input" type="text" class="form-control" placeholder="contentId">
+                        <input id="encrypt_content_input" type="text" class="form-control" placeholder="content">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <button id="decrypt_button" class="btn btn-primary">Decrypt</button>
+                        </div>
+                        <input id="decrypt_contentId_input" type="text" class="form-control" placeholder="contentId">
+                        <input id="decrypt_content_input" type="text" class="form-control" placeholder="content">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <button id="refresh_auth_button" class="btn btn-primary">Refresh auth</button>
+                        </div>
+                        <textarea disabled id="token_input" class="form-control" placeholder="token"></textarea>
                     </div>
                 </div>
             </div>
@@ -91,6 +123,32 @@
                 })
             }
 
+            const _initEncryptButtonListener = function() {
+                let contentIdInput = document.getElementById('encrypt_contentId_input');
+                let contentInput = document.getElementById('encrypt_content_input');
+                document.getElementById('encrypt_button').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    _encryptContent(contentIdInput.value, contentInput.value);
+                })
+            }
+
+            const _initDecryptButtonListener = function() {
+                let contentIdInput = document.getElementById('decrypt_contentId_input');
+                let contentInput = document.getElementById('decrypt_content_input');
+                document.getElementById('decrypt_button').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    _decryptContent(contentIdInput.value, contentInput.value);
+                })
+            }
+
+
+            const _initRefreshAuthButtonListener = function() {
+                document.getElementById('refresh_auth_button').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    _refreshAuth();
+                })
+            }
+
             const _callFunction = function(funcName, args) {
                 let safeArgs = [];
                 if(args == null) {
@@ -141,15 +199,63 @@
                 _callFunction("openDeeplink", deeplink);
             }
 
+            const _decryptContent = function(contentId, content) {
+                var messageBody = {
+                    "contentId": contentId,
+                    "content": content
+                };
+                _callFunction("decryptContent", messageBody);
+            }
+
+            const _encryptContent = function(contentId, content) {
+                var messageBody = {
+                    "contentId": contentId,
+                    "content": content
+                };
+                _callFunction("encryptContent", messageBody);
+            }
+
+            const _onContentEncrypted = function(contentId, content) {
+                let contentIdInput = document.getElementById('decrypt_contentId_input');
+                let contentInput = document.getElementById('decrypt_content_input');
+
+                contentIdInput.value = contentId
+                contentInput.value = content
+            }
+
+            const _onContentDecrypted = function(contentId, content) {
+                let contentIdInput = document.getElementById('encrypt_contentId_input');
+                let contentInput = document.getElementById('encrypt_content_input');
+
+                contentIdInput.value = contentId
+                contentInput.value = content
+            }
+
+            const _refreshAuth = function() {
+                _callFunction("refreshAuth");
+            }
+
+            const _onAuthRefreshed = function(token) {
+                let tokenInput = document.getElementById('token_input');
+
+                tokenInput.value = token
+            }
+
             return {
                 init: function() {
                     _showUserState();
                     _initHandle();
                     _initExitButtonListener();
                     _initDeeplinkButtonListener();
+                    _initEncryptButtonListener();
+                    _initDecryptButtonListener();
+                    _initRefreshAuthButtonListener();
                     _onGameInitialized();
                 },
-                setUserState: _setUserState
+                setUserState: _setUserState,
+                onContentEncrypted: _onContentEncrypted,
+                onContentDecrypted: _onContentDecrypted,
+                onAuthRefreshed: _onAuthRefreshed
             }
         })();
 
