@@ -84,6 +84,7 @@
             let handleName = "no platform";
             let androidHandleName = 'POCInterface';
             let userState = "no user state";
+            let initData = null;
 
             const _setNodeText = function(id, text) {
                 document.getElementById(id).innerText = text;
@@ -186,6 +187,10 @@
                 _callFunction("onGameInitialized");
             }
 
+            const _onInit = function(initDataInput) {
+                initData = initDataInput;
+            }
+
             const _setUserState = function(newState) {
                 userState = newState;
                 _showUserState();
@@ -252,6 +257,7 @@
                     _initRefreshAuthButtonListener();
                     _onGameInitialized();
                 },
+                onInit: _onInit,
                 setUserState: _setUserState,
                 onContentEncrypted: _onContentEncrypted,
                 onContentDecrypted: _onContentDecrypted,
