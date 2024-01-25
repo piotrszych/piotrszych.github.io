@@ -150,23 +150,24 @@
                 })
             }
 
-            const _callFunction = function(funcName, args) {
-                let safeArgs = [];
-                if(args == null) {
-                    if(handleName === 'iOS') {
-                        safeArgs = ["nil"];
-                    } else {
-                        safeArgs = [];
-                    }
-                } else if(!Array.isArray(args)) {
-                    safeArgs = [args];
-                } else {
-                    safeArgs = args;
-                }
+            const _callFunction = function(funcName, args, doKeepMap = false) {
 
                 if(handleName === 'iOS') {
-                    window.webkit.messageHandlers[funcName]["postMessage"](...safeArgs);
+                    let safeArgs = (args == null) ? "nil" : args;
+                    window.webkit.messageHandlers[funcName]["postMessage"](safeArgs);
                 } else if(handleName === 'Android') {
+                    // Helper function
+                    const _isMap = (obj) => typeof obj === "object" && !Array.isArray(obj) && obj !== null;
+                    
+                    let safeArgs = [];
+                    if(!doKeepMap && _isMap(args)) {
+                        safeArgs = Object.values(args);
+                    } else if(!Array.isArray(args)) {
+                        safeArgs = [safeArgs];
+                    } else {
+                        safeArgs = args;
+                    }
+
                     try {
                         window[androidHandleName][funcName](...safeArgs);
                     } catch(e) {
@@ -178,8 +179,9 @@
                             window[androidHandleName][funcName](null);
                         }
                     }
+
                 } else {
-                    console.warn(`Handle not detected (tried to call "${funcName}" with args ${args} parsed as ${safeArgs})`);
+                    console.error(`Invalid handle: ${handleName}`);
                 }
             }
 
