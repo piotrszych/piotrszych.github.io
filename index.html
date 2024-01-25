@@ -158,10 +158,12 @@
                 } else if(handleName === 'Android') {
                     // Helper function
                     const _isMap = (obj) => typeof obj === "object" && !Array.isArray(obj) && obj !== null;
-                    
+
                     let safeArgs = [];
                     if(!doKeepMap && _isMap(args)) {
                         safeArgs = Object.values(args);
+                    } else if(args == null) {
+                        safeArgs = [];
                     } else if(!Array.isArray(args)) {
                         safeArgs = [safeArgs];
                     } else {
