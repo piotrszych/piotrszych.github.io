@@ -37,6 +37,16 @@
                 <div class="col">
                     <div class="input-group">
                         <div class="input-group-prepend">
+                            <button id="share_button" class="btn btn-primary">Share</button>
+                        </div>
+                        <input id="share_input" type="text" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
                             <button id="encrypt_button" class="btn btn-primary">Encrypt</button>
                         </div>
                         <input id="encrypt_contentId_input" type="text" class="form-control" placeholder="contentId">
@@ -124,6 +134,14 @@
                 })
             }
 
+            const _initShareButtonListener = function() {
+                let input = document.getElementById('share_input');
+                document.getElementById('share_button').addEventListener('click', function(event) {
+                    event.preventDefault()
+                    _onShare(input.value);
+                });
+            }
+
             const _initEncryptButtonListener = function() {
                 let contentIdInput = document.getElementById('encrypt_contentId_input');
                 let contentInput = document.getElementById('encrypt_content_input');
@@ -208,6 +226,10 @@
                 _callFunction("openDeeplink", deeplink);
             }
 
+            const _onShare = function(content) {
+                _callFunction("share", content);
+            }
+
             const _decryptContent = function(contentId, content) {
                 var messageBody = {
                     "contentId": contentId,
@@ -256,6 +278,7 @@
                     _initHandle();
                     _initExitButtonListener();
                     _initDeeplinkButtonListener();
+                    _initShareButtonListener();
                     _initEncryptButtonListener();
                     _initDecryptButtonListener();
                     _initRefreshAuthButtonListener();
