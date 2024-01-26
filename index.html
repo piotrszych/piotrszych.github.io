@@ -95,6 +95,7 @@
             let androidHandleName = 'POCInterface';
             let userState = "no user state";
             let initData = null;
+            let gameID = null;
 
             const _setNodeText = function(id, text) {
                 document.getElementById(id).innerText = text;
@@ -206,7 +207,7 @@
             }
 
             const _onGameInitialized = function() {
-                _callFunction("onGameInitialized");
+                _callFunction("onGameInitialized", gameID);
             }
 
             const _onInit = function(initDataInput) {
@@ -273,7 +274,8 @@
             }
 
             return {
-                init: function() {
+                init: function(initialGameId) {
+                    if(initialGameId) gameID = initialGameId;
                     _showUserState();
                     _initHandle();
                     _initExitButtonListener();
@@ -293,7 +295,7 @@
         })();
 
         document.addEventListener('DOMContentLoaded', function() {
-            TheApp.init();
+            TheApp.init("testGameID");
         }, false);
     </script>
 </html>
