@@ -79,6 +79,7 @@
                 <div class="col">
                     <p>Platform: <span id="platform_holder"></span></p>
                     <p>Status: <span id="status_holder"></span></p>
+                    <p>User-Agent: <span id="user_agent_holder"></span></p>
                 </div>
             </div>
             <div class="row">
@@ -113,6 +114,10 @@
 
             const _showUserState = function() {
                 _setNodeText("status_holder", userState);
+            }
+
+            const _showUserAgent = function() {
+                _setNodeText("user_agent_holder", window.navigator.userAgent);
             }
 
             const _initHandle = function() {
@@ -283,6 +288,7 @@
                 init: function(initialGameId) {
                     if(initialGameId) gameID = initialGameId;
                     _showUserState();
+                    _showUserAgent();
                     _initHandle();
                     _initExitButtonListener();
                     _initDeeplinkButtonListener();
